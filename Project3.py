@@ -110,7 +110,13 @@ def create_main_screen():
 
     password_entry.bind("<Double-3>", lambda event: toggle_password_visibility(event, password_entry))
 
-    revel = False
+    def load_all():
+        print("proof2")
+        for i in user_data[current_user.get()]['passwords']:
+            print("proof")
+            passwords_table.insert("", "end", values=(i, '*' * int((len(user_data[current_user.get()]['passwords'][i]) * 2.6) // 1)))
+
+    load_all()
 
     def save_password():
         username = password_username_entry.get()
@@ -128,19 +134,23 @@ def create_main_screen():
     save_password_button.grid(row=3, column=0, columnspan=2, pady=10)
 
     def on_password_double_click(event):
-        global revel
-
         item = passwords_table.selection()[0]
         username = passwords_table.item(item, "values")[0]
 
-        if not revel:
+        print(passwords_table.item(item)['values'][1])
+
+        st = ""
+        for i in range(len(passwords_table.item(item)['values'][1])):
+            if passwords_table.item(item)['values'][1][i] == "*":
+                st += str(passwords_table.item(item)['values'][1][i])
+
+        if passwords_table.item(item)['values'][1] == st:
             password_prompt = simpledialog.askstring("Password Prompt",
                                                      f"Enter the password for {current_user.get()} to reveal:")
 
             if password_prompt:
                 if decode(current_user.get()+str(len(current_user.get())*2), valid_credentials.get(current_user.get())) == password_prompt:
                     passwords_table.item(item, values=(username, decode(username+str(len(username)*2), user_data[current_user.get()]['passwords'][username])))
-                    revel = True
                 else:
                     messagebox.showerror("Error", "Incorrect password.")
 
